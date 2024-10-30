@@ -1,0 +1,59 @@
+﻿@using Bookstore.Models;
+@model IEnumerable<Genre>;
+
+@{
+	ViewData["Title"] = "Gêneros Literarios";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>
+	<a asp-action="Create">Adicionar novo Gênero Literário</a>
+</p>
+
+<table class="table table-hover">
+	<thead>
+		<tr>
+			<th>@Html.DisplayNameFor(model => model.Name)</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach(Genre genre in Model)
+		{
+			<tr>
+				<td>
+					@Html.DisplayFor(modelItem => genre.Name)
+				</td>
+				<td>
+					<a
+						type="buutton"
+						title="Detalhes"
+						class="btn btn-outline-info px-2 py-1 rounded mx-1"
+						asp-action="Details"
+						asp-route-id="@genre.Id"
+					>
+					<i class="bi bi-list-ul"></i>
+				</a>
+					<a
+						type="button"
+						title="Editar"
+						class="btn btn-outline-warning px-2 py-1 rounded mx-1"
+						asp-action="Edit"
+						asp-route-id="@genre.Id"
+					>
+					<i class="bi bi-pencil-fill"></i>
+				</a>
+					<a
+						type="button"
+						title="Excluir"
+						class="btn btn-outline-danger px-2 py-1 rounded mx-1"
+						asp-action="Delete"
+						asp-route-id="@genre.Id"
+					>
+					<i class="bi bi-trash-fill"></i>
+				</a>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
