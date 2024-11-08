@@ -31,6 +31,8 @@ namespace Biblioteca.Controllers
                 return View();
             }
 
+            _service.Insert(genre);
+
             return RedirectToAction(nameof(Index));
         }
     }
