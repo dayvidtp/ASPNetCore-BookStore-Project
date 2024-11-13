@@ -1,5 +1,9 @@
-﻿using Bookstore.Data;
+﻿using Biblioteca.Controllers;
+using Bookstore.Data;
 using Bookstore.Models;
+using Bookstore.Services.Exceptions;
+using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bookstore.Services
 {
@@ -10,14 +14,28 @@ namespace Bookstore.Services
         {
             _context = context;
         }
-        public List<Genre> FindAll()
-        {
-            return _context.Genres.ToList();
-        }
-        public void Insert(Genre genre)
+        public async Task<List<Genre>> FindAllAsync() => await _context.Genres.ToListAsync();
+   
+        public async Task InsertAsync(Genre genre)
         {
             _context.Add(genre);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
+
+        public async Task RemoveAsync(int id)
+        {
+            try
+            {
+                Genre genre = await _context.Genres.FindAsync(id);
+                _context.Genres.Remove(genre);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new IntegrityException(ex.Message);
+            }
+        }
+
+        public async Task<Genre> FindByIdAsync(int id) => await _context.Genres.FindAsync(id);   
     }
 }
