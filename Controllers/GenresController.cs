@@ -69,6 +69,44 @@ namespace Biblioteca.Controllers
             }
         }
 
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id is null)
+            {
+                return RedirectToAction(nameof(Error), new { message = "Id não fornecido" });
+            }
+            Genre genre = await _service.FindByIdAsync(id.Value);
+            if (genre is null)
+            {
+                return RedirectToAction(nameof(Error), new { message = "Id não encontrado" });
+            }
+            return View(genre);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Genre genre)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+            if (id != genre.Id)
+            {
+                return RedirectToAction(nameof(Error), new { message = "Id não combinou" });
+            }
+
+            try
+            {
+                await _service.UpdateAsync(genre);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (ApplicationException ex)
+            {
+                return RedirectToAction(nameof(Error), new { message = ex.Message });
+            }
+        }
+
         public IActionResult Error(string message)
         {
             ErrorViewModel viewModel = new ErrorViewModel
