@@ -6,6 +6,7 @@ using Bookstore.Services.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Biblioteca.Controllers
 {
@@ -93,7 +94,7 @@ namespace Biblioteca.Controllers
             }
             if (id != genre.Id)
             {
-                return RedirectToAction(nameof(Error), new { message = "Id não combinou" });
+                return RedirectToAction(nameof(Error), new { message = "Id não condizente" });
             }
 
             try
@@ -105,6 +106,21 @@ namespace Biblioteca.Controllers
             {
                 return RedirectToAction(nameof(Error), new { message = ex.Message });
             }
+        }
+
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id is null)
+            {
+                return RedirectToAction(nameof(Error), new { message = "Id não fornecido" });
+            }
+            var obj = await _service.FindByIdEagerAsync(id.Value);
+            if (obj is null)
+            {
+                return RedirectToAction(nameof(Error), new { message = "Id não encontrado" });
+            }
+            return View(obj);
+
         }
 
         public IActionResult Error(string message)
