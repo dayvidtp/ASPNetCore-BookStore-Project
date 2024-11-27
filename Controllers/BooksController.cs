@@ -11,6 +11,7 @@ using Bookstore.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Bookstore.Models.ViewModels;
 using System.Diagnostics;
+using Bookstore.Services.Exceptions;
 
 namespace Bookstore.Controllers
 {
@@ -70,91 +71,79 @@ namespace Bookstore.Controllers
         // GET: Books/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (id is null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id não fornecido" });
             }
 
-            var book = await _context.Books.FindAsync(id);
-            if (book == null)
+            var book = await _service.FindByIdAsync(id.Value);
+            if (book is null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id não encontrado" });
             }
+
             return View(book);
         }
 
         // POST: Books/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Price,Author,ReleaseYear")] Book book)
+        public async Task<IActionResult> Edit(int id, Book book)
         {
             if (id != book.Id)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id's não condizentes" });
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) 
             {
-                try
-                {
-                    _context.Update(book);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BookExists(book.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                return View();
+            }
+
+            try
+            {
+                await _service.UpdateAsync(book);
                 return RedirectToAction(nameof(Index));
             }
-            return View(book);
+            catch (ApplicationException ex)
+            {
+               return RedirectToAction(nameof(Error), new { message = ex.Message });
+            }
         }
 
         // GET: Books/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            if (id is null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id não fornecido" });
             }
 
-            var book = await _context.Books
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (book == null)
+            var book = await _service.FindByIdAsync(id.Value);
+            if (book is null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id não encontrado" });
             }
 
             return View(book);
         }
 
         // POST: Books/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var book = await _context.Books.FindAsync(id);
-            if (book != null)
+            try
             {
-                _context.Books.Remove(book);
+                await _service.RemoveAsync(id);
+                return RedirectToAction(nameof(Index));
             }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            catch (IntegrityException ex)
+            {
+                return RedirectToAction(nameof(Error), new { message = ex.Message });
+            }
         }
 
-        private bool BookExists(int id)
-        {
-            return _context.Books.Any(e => e.Id == id);
-        }
 
         public IActionResult Error(string message)
         {
