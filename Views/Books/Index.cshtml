@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<Bookstore.Models.Book>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Livros";
 }
 
-<h1>Index</h1>
+<h1>Livros</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Criar novo livro</a>
 </p>
 <table class="table">
     <thead>
@@ -23,6 +23,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.ReleaseYear)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Genres)
             </th>
             <th></th>
         </tr>
@@ -43,9 +46,15 @@
                 @Html.DisplayFor(modelItem => item.ReleaseYear)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                @foreach (Genre genre in item.Genres)
+                {
+                        <a asp-controller="Genres" asp-action="Details" asp-route-id="@genre.Id" class="text-primary">@genre.Name</a> <br/>
+                }
+            </td>
+            <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning px-2 py-1 rounded mx-1">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info px-2 py-1 rounded mx-1">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger px-2 py-1 rounded mx-1">Delete</a>
             </td>
         </tr>
 }
