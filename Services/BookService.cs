@@ -1,5 +1,6 @@
 ﻿using Bookstore.Data;
 using Bookstore.Models;
+using Bookstore.Models.ViewModels;
 using Bookstore.Services.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;

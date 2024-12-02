@@ -1,9 +1,12 @@
+using Bookstore.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ASPNetCore-BookStore-Project.Models.ViewModels
+namespace Bookstore.Models.ViewModels
 {
     public class BookFormViewModel
     {
@@ -15,6 +18,8 @@ namespace ASPNetCore-BookStore-Project.Models.ViewModels
         public List<int> SelectedGenresIds { get; set; } = new List<int>();
 
         public List<SelectListItem> GenresSelect => GenerateGenresSelect();
+
+        public List<Genre> Genre { get; internal set; }
 
         private List<SelectListItem> GenerateGenresSelect()
         {
