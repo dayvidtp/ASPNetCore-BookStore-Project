@@ -99,15 +99,18 @@ namespace Bookstore.Controllers
                 return RedirectToAction(nameof(Error), new { message = "Id não encontrado" });
             }
 
-            return View(book);
+            List<Genre> genres = await _genreService.FindAllAsync();
+            BookFormViewModel viewModel = new BookFormViewModel { Book = book, Genres = genres };
+
+            return View(viewModel);
         }
 
         // POST: Books/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Book book)
+        public async Task<IActionResult> Edit(int id, BookFormViewModel viewModel)
         {
-            if (id != book.Id)
+            if (id != viewModel.Book.Id)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id's não condizentes" });
             }
@@ -119,7 +122,7 @@ namespace Bookstore.Controllers
 
             try
             {
-                await _service.UpdateAsync(book);
+                await _service.UpdateAsync(viewModel);
                 return RedirectToAction(nameof(Index));
             }
             catch (ApplicationException ex)

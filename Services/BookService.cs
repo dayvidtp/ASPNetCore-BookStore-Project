@@ -30,9 +30,9 @@ namespace Bookstore.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(Book book)
+        public async Task UpdateAsync(BookFormViewModel viewModel)
         {
-            bool hasany = await _context.Books.AnyAsync(x => x.Id == book.Id);
+            bool hasany = await _context.Books.AnyAsync(x => x.Id == viewModel.Book.Id);
             if (!hasany)
             {
                 throw new NotFoundException("Id não encontrado");
@@ -40,7 +40,34 @@ namespace Bookstore.Services
 
             try
             {
-                _context.Update(book);
+                Book? dbBook = await _context.Books.Include(x => x.Genres).FirstOrDefaultAsync(x => x.Id == viewModel.Book.Id);
+
+                List<Genre> selectedGenres = new List<Genre>();
+
+                foreach (int genreId in viewModel.SelectedGenresIds)
+                {
+                    Genre genre = await _context.Genres.FirstOrDefaultAsync(x => x.Id == genreId);
+                    if (genre is not null)
+                    {
+                        selectedGenres.Add(genre);
+                    }
+                }
+
+                List<Genre> currentGenres = dbBook.Genres.ToList();
+
+                List<Genre> genresToRemove = currentGenres.Where(current => !selectedGenres.Any(selected => selected.Id == current.Id)).ToList();
+
+                List<Genre> genresToAdd = selectedGenres.Where(selected => !currentGenres.Any(current => current.Id == selected.Id)).ToList();
+
+                foreach (Genre genre in genresToRemove)
+                {
+                    dbBook.Genres.Remove(genre);
+                }
+                foreach (Genre genre in genresToAdd)
+                {
+                    dbBook.Genres.Add(genre);
+                }
+
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException ex)
